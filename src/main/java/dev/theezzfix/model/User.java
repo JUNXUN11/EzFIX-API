@@ -18,4 +18,7 @@ public class User {
     private String password;
     private String email;
     private String role;
+    public String getId() {
+        return id != null ? id.toHexString() : null;
+    }
 }

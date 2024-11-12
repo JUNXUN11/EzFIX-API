@@ -33,10 +33,18 @@ public class ReportService {
 
     public Report updateReport(ObjectId id, Report reportDetails) throws Exception{
         Report report = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));
-
+        report.setStudentId(reportDetails.getStudentId());
         report.setTitle(reportDetails.getTitle());
         report.setDescription(reportDetails.getDescription());
-        report.setStatus(reportDetails.getStatus());
+        report.setStatus("Pending");
+        report.setLocation(reportDetails.getLocation());
+        report.setRoomNo(reportDetails.getRoomNo());
+        report.setCategory(reportDetails.getCategory());
+        report.setAssignedTo(reportDetails.getAssignedTo());
+        report.setTechnicianNo(reportDetails.getTechnicianNo());
+        report.setDuplicate(false);
+        report.setDuplicateOf(null);
+        report.setAttachments(null);
         report.setUpdatedAt(new Date());
 
         return reportRepository.save(report);

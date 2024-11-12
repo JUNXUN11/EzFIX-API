@@ -1,6 +1,8 @@
 package dev.theezzfix.service;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import dev.theezzfix.exception.UserAlreadyExistsException;
@@ -21,7 +23,14 @@ public class UserService {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private Map<String, String> refreshTokenStore = new HashMap<>();
+
+    public User findUserById(ObjectId id) {
+        return repository.findById(id).orElse(null);
+    }
 
     public List<User> findAllUsers() {
         return repository.findAll();
@@ -31,7 +40,7 @@ public class UserService {
         User user = repository.findByUsername(loginRequest.getUsername())
             .orElseThrow(() -> new Exception("User not found"));
 
-        if (!user.getPassword().equals(loginRequest.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new Exception("Invalid password");
         }
      
@@ -52,7 +61,7 @@ public class UserService {
         User newUser = new User();
         newUser.setUsername(registerRequest.getUsername());
         newUser.setEmail(registerRequest.getEmail());
-        newUser.setPassword(registerRequest.getPassword());
+        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         newUser.setRole("user");
         
         User savedUser = repository.save(newUser);
@@ -77,7 +86,4 @@ public class UserService {
             throw new Exception("Invalid refresh token");
         }
     };
-
-
-
 }

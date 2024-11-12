@@ -2,7 +2,10 @@ package dev.theezzfix.controller;
 
 import dev.theezzfix.model.Report;
 import dev.theezzfix.service.ReportService;
+
+
 import org.bson.types.ObjectId;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/v1/reports")
 @CrossOrigin(origins = "*")
 public class ReportController {
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ReportController.class);
     @Autowired
     private ReportService reportService;
 
@@ -24,6 +27,7 @@ public class ReportController {
             Report savedReport = reportService.createReport(report);
             return new ResponseEntity<>(savedReport, HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Error getting all reports", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -37,7 +41,8 @@ public class ReportController {
             }
             return new ResponseEntity<>(reports, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error getting all reports", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
