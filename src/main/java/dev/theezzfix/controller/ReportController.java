@@ -65,9 +65,11 @@ public class ReportController {
             Report updatedReport = reportService.updateReport(objectId, reportDetails);
             return new ResponseEntity<>(updatedReport, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            logger.error("Error updating report with id: " + id, e);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteReport(@PathVariable("id") String id) {

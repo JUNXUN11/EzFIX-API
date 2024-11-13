@@ -18,7 +18,8 @@ import java.util.List;
 public class Report {
     @Id
     private ObjectId id;
-    private ObjectId studentId;
+    
+    private String studentId;
     private String title;
     private String location;
     private int roomNo;
