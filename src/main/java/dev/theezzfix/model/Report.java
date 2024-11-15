@@ -18,8 +18,7 @@ import java.util.List;
 public class Report {
     @Id
     private ObjectId id;
-    
-    private String studentId;
+    private ObjectId studentId;
     private String title;
     private String location;
     private int roomNo;
@@ -37,5 +36,10 @@ public class Report {
     public String getId() {
         return id != null ? id.toHexString() : null;
     }
-    
+    public String getStudentId() {
+        return studentId != null ? studentId.toHexString() : null;
+    }
+    public void setStudentId(ObjectId studentId) {
+        this.studentId = studentId;
+    }
 }

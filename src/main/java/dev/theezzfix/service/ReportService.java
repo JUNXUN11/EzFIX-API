@@ -17,6 +17,9 @@ public class ReportService {
     private ReportRepository reportRepository;
 
     public Report createReport(Report report){
+        if (report.getStudentId() != null) {
+            report.setStudentId(new ObjectId(report.getStudentId()));
+        }                   
         report.setId(ObjectId.get());
         report.setCreatedAt(new Date());
         report.setUpdatedAt(new Date());
@@ -27,13 +30,19 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
+    public List<Report> getReportsByStudentId(ObjectId studentId) {
+        return reportRepository.findByStudentId(studentId);
+    }    
+    
     public Optional<Report> getReportById(ObjectId id){
         return reportRepository.findById(id);
     };
 
-    public Report updateReport(ObjectId id, Report reportDetails) throws Exception{
-        Report report = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));
-        report.setStudentId(reportDetails.getStudentId());
+    public Report updateReport(ObjectId id, Report reportDetails) throws Exception {
+        Report report = reportRepository.findById(id).orElseThrow(() -> new Exception("Report not found for this id: " + id));
+        if (reportDetails.getStudentId() != null) {
+            report.setStudentId(new ObjectId(reportDetails.getStudentId())); 
+        }
         report.setTitle(reportDetails.getTitle());
         report.setDescription(reportDetails.getDescription());
         report.setStatus("Pending");
@@ -46,10 +55,10 @@ public class ReportService {
         report.setDuplicateOf(null);
         report.setAttachments(null);
         report.setUpdatedAt(new Date());
-
+    
         return reportRepository.save(report);
     }
-
+    
     public Report patchReport(ObjectId id, Report reportPatch) throws Exception{
         Report existingReport = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));
         if(reportPatch.getStatus() != null){

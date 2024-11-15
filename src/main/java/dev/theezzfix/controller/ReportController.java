@@ -18,6 +18,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ReportController {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ReportController.class);
+
     @Autowired
     private ReportService reportService;
 
@@ -45,6 +46,21 @@ public class ReportController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/my-reports")  
+    public ResponseEntity<List<Report>> getMyReports(@RequestParam("studentId") String studentId) {
+        logger.info("Received request for my-reports with studentId: {}", studentId);
+        try {
+            if (!ObjectId.isValid(studentId)) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            
+            List<Report> reports = reportService.getReportsByStudentId(new ObjectId(studentId));
+            return new ResponseEntity<>(reports, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }    
 
     @GetMapping("/{id}")
     public ResponseEntity<Report> getReportById(@PathVariable("id") String id) {
