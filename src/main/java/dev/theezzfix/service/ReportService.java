@@ -50,6 +50,21 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
+    public Report patchReport(ObjectId id, Report reportPatch) throws Exception{
+        Report existingReport = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));
+        if(reportPatch.getStatus() != null){
+            existingReport.setStatus(reportPatch.getStatus());
+        }
+        if(reportPatch.getAssignedTo() != null){
+            existingReport.setAssignedTo(reportPatch.getAssignedTo());
+        }
+        if(reportPatch.getTechnicianNo() != null){
+            existingReport.setTechnicianNo(reportPatch.getTechnicianNo());
+        }
+        existingReport.setUpdatedAt(new Date());
+        return reportRepository.save(existingReport);
+    }
+
     public void deleteReport(ObjectId id) throws Exception{
         Report report = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));  
         reportRepository.delete(report);

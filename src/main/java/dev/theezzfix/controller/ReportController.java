@@ -71,6 +71,18 @@ public class ReportController {
     }
 
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Report> patchReport(@PathVariable("id")String id, @RequestBody Report reportPatch){
+        try {
+            ObjectId objectId = new ObjectId(id);
+            Report updatedReport = reportService.patchReport(objectId, reportPatch);
+            return new ResponseEntity<>(updatedReport, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error patching report with id: " + id, e);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteReport(@PathVariable("id") String id) {
         try {
