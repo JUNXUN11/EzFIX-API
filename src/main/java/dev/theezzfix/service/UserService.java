@@ -9,6 +9,7 @@ import dev.theezzfix.exception.UserAlreadyExistsException;
 import dev.theezzfix.model.LoginRequest;
 import dev.theezzfix.model.LoginResponse;
 import dev.theezzfix.model.RegisterRequest;
+import dev.theezzfix.model.UpdateUserRequest;
 import dev.theezzfix.model.User;
 import dev.theezzfix.repository.UserRepository;
 
@@ -72,6 +73,28 @@ public class UserService {
         refreshTokenStore.put(savedUser.getUsername(), refreshToken);
 
         return new LoginResponse(accessToken, refreshToken, savedUser);
+    }
+
+    public User updateUser(ObjectId id, UpdateUserRequest updateRequest) throws Exception {
+        User user = repository.findById(id)
+            .orElseThrow(() -> new Exception("User not found"));
+
+        if (updateRequest.getUsername() != null && 
+            !updateRequest.getUsername().equals(user.getUsername())) {
+            
+            Optional<User> existingUser = repository.findByUsername(updateRequest.getUsername());
+            if (existingUser.isPresent()) {
+                throw new UserAlreadyExistsException("Username already taken");
+            }
+            user.setUsername(updateRequest.getUsername());
+        }
+
+        if (updateRequest.getEmail() != null && 
+            !updateRequest.getEmail().equals(user.getEmail())) {
+            user.setEmail(updateRequest.getEmail());
+        }
+
+        return repository.save(user);
     }
 
     public void logout(String refreshToken){
