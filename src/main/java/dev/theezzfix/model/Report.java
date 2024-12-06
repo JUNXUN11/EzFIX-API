@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class Report {
     private String technicianNo;
     private boolean isDuplicate;
     private ObjectId duplicateOf;
-    private List<String> attachments;
+    private List<String> attachments = new ArrayList<>(); 
     private Date createdAt;
     private Date updatedAt;
     public String getId() {

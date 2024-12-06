@@ -1,16 +1,25 @@
 package dev.theezzfix.controller;
 
+import dev.theezzfix.dto.CreateReportRequest;
 import dev.theezzfix.model.Report;
 import dev.theezzfix.service.ReportService;
-
+import dev.theezzfix.service.FileStorageService;
 
 import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
+import java.util.Optional;
+import org.springframework.http.MediaType;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -22,13 +31,16 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @PostMapping
-    public ResponseEntity<Report> createReport(@RequestBody Report report) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Report> createReport(@ModelAttribute CreateReportRequest reportRequest) {
         try {
-            Report savedReport = reportService.createReport(report);
+            Report savedReport = reportService.createReportWithAttachments(reportRequest);
             return new ResponseEntity<>(savedReport, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid input data: ", e);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("Error getting all reports", e);
+            logger.error("Error creating report with attachments", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -96,6 +108,37 @@ public class ReportController {
         } catch (Exception e) {
             logger.error("Error patching report with id: " + id, e);
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/{reportId}/attachments/{fileId}")
+    public ResponseEntity<?> getAttachment(@PathVariable("reportId") String reportId, @PathVariable("fileId") String fileId) {
+        try {
+            if (!ObjectId.isValid(reportId)) {
+                logger.error("Invalid report ID format: {}", reportId);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            ObjectId reportObjectId = new ObjectId(reportId);
+            Optional<Report> reportOpt = reportService.getReportById(reportObjectId);
+            if (!reportOpt.isPresent()) {
+                logger.error("Report not found with ID: {}", reportId);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            Optional<GridFsResource> resourceOpt = reportService.getFileStorageService().getFile(fileId);
+            if (resourceOpt.isPresent()) {
+                GridFsResource resource = resourceOpt.get();
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(resource.getContentType()))
+                        .body(new InputStreamResource(resource.getInputStream()));
+            } else {
+                logger.error("File not found with ID: {}", fileId);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IOException e) {
+            logger.error("Error retrieving file with ID: {}", fileId, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

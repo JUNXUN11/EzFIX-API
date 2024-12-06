@@ -1,5 +1,6 @@
 package dev.theezzfix.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -7,22 +8,70 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import dev.theezzfix.dto.CreateReportRequest;
 import dev.theezzfix.model.Report;
 import dev.theezzfix.repository.ReportRepository;
 
 @Service
 public class ReportService {
-    @Autowired
-    private ReportRepository reportRepository;
 
-    public Report createReport(Report report){
-        if (report.getStudentId() != null) {
-            report.setStudentId(new ObjectId(report.getStudentId()));
-        }                   
-        report.setId(ObjectId.get());
-        report.setCreatedAt(new Date());
-        report.setUpdatedAt(new Date());
+    private final ReportRepository reportRepository;
+    private final FileStorageService fileStorageService;
+
+    @Autowired
+    public ReportService(ReportRepository reportRepository, FileStorageService fileStorageService) {
+        this.reportRepository = reportRepository;
+        this.fileStorageService = fileStorageService;
+    }
+
+    public Report createReportWithAttachments(CreateReportRequest reportRequest) throws Exception {
+        ObjectId studentObjectId;
+        if (reportRequest.getStudentId() != null && ObjectId.isValid(reportRequest.getStudentId())) {
+            studentObjectId = new ObjectId(reportRequest.getStudentId());
+        } else {
+            throw new IllegalArgumentException("Invalid or missing studentId");
+        }
+    
+        Report report = new Report();
+        report.setStudentId(studentObjectId);
+        report.setTitle(reportRequest.getTitle());
+        report.setLocation(reportRequest.getLocation());
+        report.setRoomNo(reportRequest.getRoomNo());
+        report.setCategory(reportRequest.getCategory());
+        report.setDescription(reportRequest.getDescription());
+        report.setReportedBy(reportRequest.getReportedBy());
+        report.setStatus(reportRequest.getStatus());
+        report.setAssignedTo(reportRequest.getAssignedTo());
+        report.setTechnicianNo(reportRequest.getTechnicianNo());
+        report.setDuplicate(reportRequest.isDuplicate());
+    
+        if (reportRequest.getDuplicateOf() != null && ObjectId.isValid(reportRequest.getDuplicateOf())) {
+            report.setDuplicateOf(new ObjectId(reportRequest.getDuplicateOf()));
+        }
+    
+        List<String> attachmentIds = new ArrayList<>();
+    
+        if (reportRequest.getAttachments() != null && !reportRequest.getAttachments().isEmpty()) {
+            for (MultipartFile file : reportRequest.getAttachments()) {
+                if (!file.isEmpty()) {
+                    String fileId = fileStorageService.storeFile(file);
+                    attachmentIds.add(fileId);
+                }
+            }
+        }
+    
+        if (!attachmentIds.isEmpty()) {
+            report.setAttachments(attachmentIds);
+        } else {
+            report.setAttachments(null);
+        }
+    
+        Date now = new Date();
+        report.setCreatedAt(now);
+        report.setUpdatedAt(now);
+    
         return reportRepository.save(report);
     }
 
@@ -53,7 +102,6 @@ public class ReportService {
         report.setTechnicianNo(reportDetails.getTechnicianNo());
         report.setDuplicate(false);
         report.setDuplicateOf(null);
-        report.setAttachments(null);
         report.setUpdatedAt(new Date());
     
         return reportRepository.save(report);
@@ -77,5 +125,9 @@ public class ReportService {
     public void deleteReport(ObjectId id) throws Exception{
         Report report = reportRepository.findById(id).orElseThrow(()-> new Exception("Report not found for this id : " + id));  
         reportRepository.delete(report);
+    }
+
+    public FileStorageService getFileStorageService() {
+        return fileStorageService;
     }
 }
