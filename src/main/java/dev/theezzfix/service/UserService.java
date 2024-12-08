@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import dev.theezzfix.exception.UserAlreadyExistsException;
 import dev.theezzfix.model.LoginRequest;
@@ -12,7 +13,9 @@ import dev.theezzfix.model.RegisterRequest;
 import dev.theezzfix.model.UpdateUserRequest;
 import dev.theezzfix.model.User;
 import dev.theezzfix.repository.UserRepository;
+import dev.theezzfix.service.FileStorageService;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     private Map<String, String> refreshTokenStore = new HashMap<>();
+
+    private final FileStorageService fileStorageService;
+
+    public UserService(UserRepository userRepository, FileStorageService fileStorageService) {
+        this.repository = userRepository;
+        this.fileStorageService = fileStorageService;
+    }
 
     public User findUserById(ObjectId id) {
         return repository.findById(id).orElse(null);
@@ -64,6 +74,7 @@ public class UserService {
         newUser.setEmail(registerRequest.getEmail());
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         newUser.setRole("user");
+        newUser.setProfileImageId(null);
         
         User savedUser = repository.save(newUser);
 
@@ -109,4 +120,35 @@ public class UserService {
             throw new Exception("Invalid refresh token");
         }
     };
+
+    public User updateProfileImage(String userId, MultipartFile file) throws IOException {
+        ObjectId objectId = new ObjectId(userId);
+        User user = repository.findById(objectId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Delete old profile image if exists
+        if (user.getProfileImageId() != null) {
+            fileStorageService.deleteFile(user.getProfileImageId());
+        }
+
+        // Store new profile image
+        String fileId = fileStorageService.storeFile(file);
+        user.setProfileImageId(fileId);
+        
+        return repository.save(user);
+    }
+
+    public User deleteProfileImage(String userId) {
+        ObjectId objectId = new ObjectId(userId);
+        User user = repository.findById(objectId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getProfileImageId() != null) {
+            fileStorageService.deleteFile(user.getProfileImageId());
+            user.setProfileImageId(null);
+            return repository.save(user);
+        }
+        
+        return user;
+    }
 }

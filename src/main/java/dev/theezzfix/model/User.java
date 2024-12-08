@@ -18,7 +18,17 @@ public class User {
     private String password;
     private String email;
     private String role;
+    private String profileImageId;
+
     public String getId() {
         return id != null ? id.toHexString() : null;
+    }
+
+    public String getProfileImageId() {
+        return profileImageId;
+    }
+
+    public void setProfileImageId(String profileImageId) {
+        this.profileImageId = profileImageId;
     }
 }
