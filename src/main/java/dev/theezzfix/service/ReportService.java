@@ -44,7 +44,7 @@ public class ReportService {
         report.setReportedBy(reportRequest.getReportedBy());
         report.setStatus(reportRequest.getStatus());
         report.setAssignedTo(reportRequest.getAssignedTo());
-        report.setTechnicianNo(reportRequest.getTechnicianNo());
+        report.setAssignedNo(reportRequest.getAssignedNo());
         report.setDuplicate(reportRequest.isDuplicate());
     
         if (reportRequest.getDuplicateOf() != null && ObjectId.isValid(reportRequest.getDuplicateOf())) {
@@ -99,7 +99,7 @@ public class ReportService {
         report.setRoomNo(reportDetails.getRoomNo());
         report.setCategory(reportDetails.getCategory());
         report.setAssignedTo(reportDetails.getAssignedTo());
-        report.setTechnicianNo(reportDetails.getTechnicianNo());
+        report.setAssignedNo(reportDetails.getAssignedNo());
         report.setDuplicate(false);
         report.setDuplicateOf(null);
         report.setUpdatedAt(new Date());
@@ -115,8 +115,11 @@ public class ReportService {
         if(reportPatch.getAssignedTo() != null){
             existingReport.setAssignedTo(reportPatch.getAssignedTo());
         }
-        if(reportPatch.getTechnicianNo() != null){
-            existingReport.setTechnicianNo(reportPatch.getTechnicianNo());
+        if(reportPatch.getAssignedNo() != null){
+            existingReport.setAssignedNo(reportPatch.getAssignedNo());
+        }
+        if (reportPatch.getComment() != null) {
+            existingReport.setComment(reportPatch.getComment());
         }
         existingReport.setUpdatedAt(new Date());
         return reportRepository.save(existingReport);

@@ -29,12 +29,14 @@ public class Report {
     private String reportedBy;
     private String status;
     private String assignedTo;
-    private String technicianNo;
+    private String assignedNo;
     private boolean isDuplicate;
     private ObjectId duplicateOf;
     private List<String> attachments = new ArrayList<>(); 
     private Date createdAt;
     private Date updatedAt;
+    private String comment;
+
     public String getId() {
         return id != null ? id.toHexString() : null;
     }
@@ -43,5 +45,11 @@ public class Report {
     }
     public void setStudentId(ObjectId studentId) {
         this.studentId = studentId;
+    }
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

@@ -16,8 +16,9 @@ public class CreateReportRequest {
     private String reportedBy;
     private String status;
     private String assignedTo;
-    private String technicianNo;
+    private String assignedNo;
     private boolean isDuplicate;
     private String duplicateOf;
+    private String comment;
     private List<MultipartFile> attachments; 
 }
