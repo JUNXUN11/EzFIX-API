@@ -9,10 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") 
-                .allowedOrigins("http://localhost:5173", "https://theezfixapi.onrender.com") 
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") 
-                .allowedHeaders("*") 
-                .allowCredentials(true); 
+        registry.addMapping("/api/**")
+                .allowedOriginPatterns("http://localhost:5173", "https://theezfixapi.onrender.com") // Explicitly list origins
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // HTTP methods
+                .allowedHeaders("*") // Allow all headers
+                .allowCredentials(true); // Enable credentials
     }
 }
