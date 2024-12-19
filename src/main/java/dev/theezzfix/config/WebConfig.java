@@ -11,13 +11,12 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOriginPatterns(
-                    "http://localhost:5173", 
-                    "https://theezfixapi.onrender.com",
-                    "https://theezzfix.onrender.com"
-                    
-                ) // Specify allowed origins
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true); 
+                    "http://localhost:5173",           // Local development
+                    "https://theezfixapi.onrender.com", // Backend URL
+                    "https://theezzfix.onrender.com"    // Frontend URL
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Explicitly allow HTTP methods
+                .allowedHeaders("*")               // Allow all headers
+                .allowCredentials(true);           // Allow credentials
     }
 }
