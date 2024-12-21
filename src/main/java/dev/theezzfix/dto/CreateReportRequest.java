@@ -21,7 +21,7 @@ public class CreateReportRequest {
     private String duplicateOf;
     private String comment;
     private List<MultipartFile> attachments; 
-    private Boolean priority;
+    private boolean priority;
 
     public Boolean getPriority() {
         return priority;

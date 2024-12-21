@@ -36,7 +36,7 @@ public class Report {
     private Date createdAt;
     private Date updatedAt;
     private String comment;
-    private Boolean priority;
+    private boolean priority;
 
     public String getId() {
         return id != null ? id.toHexString() : null;
@@ -56,7 +56,7 @@ public class Report {
     public Boolean getPriority() {
         return priority;
     }
-    public void setPriority(Boolean priority) {
+    public void setPriority(boolean priority) {
         this.priority = priority;
     }
 }
