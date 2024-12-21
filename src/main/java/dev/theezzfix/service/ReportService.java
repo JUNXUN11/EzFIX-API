@@ -46,6 +46,7 @@ public class ReportService {
         report.setAssignedTo(reportRequest.getAssignedTo());
         report.setAssignedNo(reportRequest.getAssignedNo());
         report.setDuplicate(reportRequest.isDuplicate());
+        report.setPriority(reportRequest.getPriority());
     
         if (reportRequest.getDuplicateOf() != null && ObjectId.isValid(reportRequest.getDuplicateOf())) {
             report.setDuplicateOf(new ObjectId(reportRequest.getDuplicateOf()));
@@ -120,6 +121,9 @@ public class ReportService {
         }
         if (reportPatch.getComment() != null) {
             existingReport.setComment(reportPatch.getComment());
+        }
+        if (reportPatch.getPriority() != existingReport.getPriority()) {
+            existingReport.setPriority(reportPatch.getPriority());
         }
         existingReport.setUpdatedAt(new Date());
         return reportRepository.save(existingReport);

@@ -36,6 +36,7 @@ public class Report {
     private Date createdAt;
     private Date updatedAt;
     private String comment;
+    private Boolean priority;
 
     public String getId() {
         return id != null ? id.toHexString() : null;
@@ -51,5 +52,11 @@ public class Report {
     }
     public void setComment(String comment) {
         this.comment = comment;
+    }
+    public Boolean getPriority() {
+        return priority;
+    }
+    public void setPriority(Boolean priority) {
+        this.priority = priority;
     }
 }
