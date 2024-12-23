@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -18,16 +20,21 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 @Service
 public class FileStorageService {
 
-    private final GridFsTemplate gridFsTemplate;
-
     @Autowired
-    public FileStorageService(GridFsTemplate gridFsTemplate){
-        this.gridFsTemplate = gridFsTemplate;
-    };
+    private GridFsTemplate gridFsTemplate;
 
     public String storeFile(MultipartFile file) throws IOException {
-        ObjectId id = gridFsTemplate.store(file.getInputStream(),file.getOriginalFilename(),file.getContentType());
-        return id.toHexString();
+        DBObject metadata = new BasicDBObject();
+        metadata.put("contentType", file.getContentType());
+        metadata.put("filename", file.getOriginalFilename());
+        
+        ObjectId fileId = gridFsTemplate.store(
+            file.getInputStream(), 
+            file.getOriginalFilename(),
+            file.getContentType(),
+            metadata
+        );
+        return fileId.toString();
     }
 
     public Optional<GridFsResource> getFile(String fileId) {
