@@ -7,7 +7,7 @@ This is the backend for the **EzFIX** web application, built using **Java Spring
 - **Backend Framework**: Spring Boot 3.0.1
 - **Java Version**: 17
 - **Database**: MongoDB Atlas (cloud-based)
-- **Deployment**: Render (for hosting)
+- **Deployment**: Render (for hosting), Docker
 
 ## Project Purpose & Features
 
